@@ -50,7 +50,9 @@ jobs:
       # Étape 6 : Créer le build de l'application (fichier JAR)
       - name: Build Spring Boot project
         run: mvn package -DskipTests  # Crée le JAR sans exécuter les tests (si tu veux déjà les avoir passés à l'étape précédente)
-
+      # Étape de vérification des fichiers dans le répertoire target
+      - name: List files in target directory
+        run: ls -al target/
       # Optionnel : Publier un fichier JAR ou autre artefact
       - name: Upload JAR file as artifact
         uses: actions/upload-artifact@v3
