@@ -57,3 +57,9 @@ jobs:
         with:
           name: spring-boot-jar
           path: target/*.jar  # Récupère le fichier JAR généré dans le dossier target
+            # Étape 7 : Simuler le déploiement
+      - name: Simulated deploy
+        run: |
+          chmod +x deploy.sh  # Rendre le script exécutable
+          ./deploy.sh  # Exécuter le script de déploiement
+
