@@ -1,0 +1,52 @@
+name: Build and Test Spring Boot Project
+
+on:
+  push:
+    branches:
+      - master  # Utilise master comme branche principale
+  pull_request:
+    branches:
+      - master  # Utilise master comme branche principale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Exécute sur une machine virtuelle Ubuntu
+
+    steps:
+      # Étape 1 : Checkout du code source
+      - name: Checkout code
+        uses: actions/checkout@v3  # Récupère le code du dépôt
+
+      # Étape 2 : Configuration de JDK 17 (Spring Boot 3 utilise Java 17 minimum)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Utilise la version Java 17
+
+      # Étape 3 : Cacher le cache pour les dépendances Maven (si tu utilises Maven)
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository  # Cache le dossier des dépendances Maven
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  # Clé de cache basée sur le fichier pom.xml
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Étape 4 : Télécharger et restaurer les dépendances
+      - name: Build with Maven
+        run: mvn clean install -DskipTests  # Utilise Maven pour installer les dépendances
+
+      # Étape 5 : Exécution des tests
+      - name: Run tests
+        run: mvn test  # Lance les tests unitaires avec Maven
+
+      # Étape 6 : Créer le build de l'application (fichier JAR)
+      - name: Build Spring Boot project
+        run: mvn package -DskipTests  # Crée le JAR sans exécuter les tests (si tu veux déjà les avoir passés à l'étape précédente)
+
+      # Optionnel : Publier un fichier JAR ou autre artefact
+      - name: Upload JAR file as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: spring-boot-jar
+          path: target/*.jar  # Récupère le fichier JAR généré dans le dossier target
