@@ -32,6 +32,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      #  Étape de vérification du formatage
+      - name: Check code formatting with Spotless
+        run: mvn spotless:check
       # Étape 4 : Télécharger et restaurer les dépendances
       - name: Build with Maven
         run: mvn clean install -DskipTests  # Utilise Maven pour installer les dépendances
