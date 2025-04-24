@@ -73,7 +73,7 @@ jobs:
       # Étape 12 : Exécuter une image Docker avec le JAR
       - name: Run Docker container with JAR
         run: |
-          docker run --rm -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/${JAR_NAME}
+          timeout 15s docker run --rm -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/${JAR_NAME}
 
       # Étape 13 : Simuler le déploiement
       - name: Simulated deploy
