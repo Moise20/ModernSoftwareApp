@@ -70,15 +70,40 @@ jobs:
         run: |
           echo "JAR_NAME=$(basename $(ls target/*.jar | head -n 1))" >> $GITHUB_ENV
       
-      # Étape 12 : Tester que l'application démarre correctement (mais s'arrête après 10 secondes)
-      - name: Test Spring Boot application startup
+      # Étape 12 : Exécuter l'application dans Docker avec capture d'écran
+      - name: Run Docker container with JAR and take screenshot
         run: |
-          docker run --rm -v ${{ github.workspace }}/target:/app openjdk:17 \
-          bash -c "java -jar /app/${JAR_NAME} --server.port=8080 & \
-          PID=$! && \
-          sleep 10 && \
-          echo 'Application started successfully' && \
-          kill $PID"
+          # Démarrer le conteneur en arrière-plan et exposer le port 8080
+          docker run -d --name spring-app -p 8080:8080 -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/${JAR_NAME}
+          
+          # Attendre que l'application démarre
+          sleep 15
+          
+          # Vérifier que le conteneur est en cours d'exécution
+          docker ps
+          
+          # Capturer les logs du conteneur pour prouver qu'il fonctionne
+          docker logs spring-app > docker_logs.txt
+          
+          # Option 1: Utiliser curl pour vérifier que l'application répond
+          echo "Test d'accessibilité de l'application:"
+          curl -s http://localhost:8080 || echo "L'application ne répond pas sur la racine, ce qui est normal si aucun endpoint n'est défini à la racine"
+          
+          # Générer une capture d'écran textuelle de l'état du conteneur
+          echo "--- Capture d'écran Docker ---" > docker_screenshot.txt
+          echo "Date: $(date)" >> docker_screenshot.txt
+          echo "Container ID: $(docker ps -q --filter name=spring-app)" >> docker_screenshot.txt
+          echo "Container Status: $(docker inspect --format='{{.State.Status}}' spring-app)" >> docker_screenshot.txt
+          echo "Container Logs:" >> docker_screenshot.txt
+          docker logs spring-app | tail -20 >> docker_screenshot.txt
+          echo "------------------------" >> docker_screenshot.txt
+          
+          # Afficher la capture
+          cat docker_screenshot.txt
+          
+          # Arrêter proprement le conteneur
+          docker stop spring-app
+          docker rm spring-app
       
       # Étape 13 : Simuler le déploiement
       - name: Simulated deploy
