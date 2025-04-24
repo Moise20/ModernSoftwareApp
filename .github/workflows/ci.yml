@@ -55,7 +55,7 @@ jobs:
         run: ls -al target/
       # Optionnel : Publier un fichier JAR ou autre artefact
       - name: Upload JAR file as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: spring-boot-jar
           path: target/*.jar  # Récupère le fichier JAR généré dans le dossier target
