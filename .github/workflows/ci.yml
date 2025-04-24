@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Étape 1 : Récupérer le code source
+      # Étape 1 : Récupération du code source
       - name: Checkout code
         uses: actions/checkout@v3
       
-      # Étape 2 : Lire un secret GitHub
+      # Étape 2 : Lecture du secret GitHub
       - name: Read secret
         run: echo "Secret value is ${{ secrets.MY_SECRET }}"
       
@@ -37,59 +37,59 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       
-      # Étape 5 : Vérifier le formatage du code
+      # Étape 5 : Vérification du formatage du code
       - name: Check code formatting with Spotless
         run: mvn spotless:check
       
-      # Étape 6 : Compiler et installer les dépendances sans tests
+      # Étape 6 : Je Compile et et j'installe les dépendances sans tests
       - name: Build with Maven
         run: mvn clean install -DskipTests
       
-      # Étape 7 : Exécuter les tests
+      # Étape 7 : J'éxécute les tests
       - name: Run tests
         run: mvn test
       
-      # Étape 8 : Générer le fichier JAR
+      # Étape 8 : Je génére le fichier JAR
       - name: Build Spring Boot project
         run: mvn package -DskipTests
       
-      # Étape 9 : Afficher les fichiers générés
+      # Étape 9 : J'affiche les fichiers générés
       - name: List files in target directory
         run: ls -al target/
       
-      # Étape 10 : Upload du fichier JAR en tant qu'artefact
+      # Étape 10 : J'upload le fichier JAR en tant qu'artefact
       - name: Upload JAR file as artifact
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-jar
           path: target/*.jar
       
-      # Étape 11 : Déterminer le nom du fichier JAR
+      # Étape 11 : Je détermine le nom du fichier JAR
       - name: Get JAR filename
         id: get-jar
         run: |
           echo "JAR_NAME=$(basename $(ls target/*.jar | head -n 1))" >> $GITHUB_ENV
       
-      # Étape 12 : Exécuter l'application dans Docker avec capture d'écran
+      # Étape 12 : J'exécute l'application dans Docker avec capture d'écran
       - name: Run Docker container with JAR and take screenshot
         run: |
-          # Démarrer le conteneur en arrière-plan et exposer le port 8080
+          # Je démarre le conteneur en arrière-plan et j'expose le port 8080
           docker run -d --name spring-app -p 8080:8080 -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/${JAR_NAME}
           
-          # Attendre que l'application démarre
+          # J'attends que l'application démarre
           sleep 15
           
-          # Vérifier que le conteneur est en cours d'exécution
+          # Je vérifie que le conteneur est en cours d'exécution
           docker ps
           
-          # Capturer les logs du conteneur pour prouver qu'il fonctionne
+          # Je capture les logs du conteneur pour prouver qu'il fonctionne
           docker logs spring-app > docker_logs.txt
           
-          # Option 1: Utiliser curl pour vérifier que l'application répond
+          #  J'Utilise curl pour vérifier que l'application répond
           echo "Test d'accessibilité de l'application:"
           curl -s http://localhost:8080 || echo "L'application ne répond pas sur la racine, ce qui est normal si aucun endpoint n'est défini à la racine"
           
-          # Générer une capture d'écran textuelle de l'état du conteneur
+          # Je Génère une capture d'écran textuelle de l'état du conteneur
           echo "--- Capture d'écran Docker ---" > docker_screenshot.txt
           echo "Date: $(date)" >> docker_screenshot.txt
           echo "Container ID: $(docker ps -q --filter name=spring-app)" >> docker_screenshot.txt
@@ -98,14 +98,14 @@ jobs:
           docker logs spring-app | tail -20 >> docker_screenshot.txt
           echo "------------------------" >> docker_screenshot.txt
           
-          # Afficher la capture
+          # J'affiche la capture
           cat docker_screenshot.txt
           
-          # Arrêter proprement le conteneur
+          # J'arrête proprement le conteneur
           docker stop spring-app
           docker rm spring-app
       
-      # Étape 13 : Simuler le déploiement
+      # Étape 13 : Je simule le déploiement
       - name: Simulated deploy
         run: |
           chmod +x deploy.sh
