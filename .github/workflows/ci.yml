@@ -46,8 +46,6 @@ jobs:
         run: mvn clean install -DskipTests
 
       # Étape 7 : Exécuter les tests
-        # Tu peux désactiver temporairement cette ligne si tu veux avancer plus vite :
-        # run: echo "Tests désactivés"
       - name: Run tests
         run: mvn test
 
@@ -66,12 +64,18 @@ jobs:
           name: spring-boot-jar
           path: target/*.jar
 
-      # Étape 11 : Exécuter une image Docker avec le JAR
+      # Étape 11 : Déterminer le nom du fichier JAR
+      - name: Get JAR filename
+        id: get-jar
+        run: |
+          echo "JAR_NAME=$(basename $(ls target/*.jar | head -n 1))" >> $GITHUB_ENV
+
+      # Étape 12 : Exécuter une image Docker avec le JAR
       - name: Run Docker container with JAR
         run: |
-          docker run --rm -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/*.jar
+          docker run --rm -v ${{ github.workspace }}/target:/app openjdk:17 java -jar /app/${JAR_NAME}
 
-      # Étape 12 : Simuler le déploiement
+      # Étape 13 : Simuler le déploiement
       - name: Simulated deploy
         run: |
           chmod +x deploy.sh
