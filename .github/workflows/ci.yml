@@ -17,51 +17,54 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3  # Récupère le code du dépôt
 
-       # Étape : Lire le secret GitHub (exercice de simulation)
+      # Étape 2 : Lire un secret GitHub (exercice de simulation)
       - name: Read secret
         run: echo "Secret value is ${{ secrets.MY_SECRET }}"
 
-      # Étape 2 : Configuration de JDK 17 (Spring Boot 3 utilise Java 17 minimum)
+      # Étape 3 : Configuration de JDK 17 (Spring Boot 3 utilise Java 17 minimum)
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'  # Utilise la version Java 17
+          java-version: '17'
 
-      # Étape 3 : Cacher le cache pour les dépendances Maven (si tu utilises Maven)
+      # Étape 4 : Cacher les dépendances Maven
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.m2/repository  # Cache le dossier des dépendances Maven
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  # Clé de cache basée sur le fichier pom.xml
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      #  Étape de vérification du formatage
+      # Étape 5 : Vérifier le formatage avec Spotless
       - name: Check code formatting with Spotless
         run: mvn spotless:check
-      # Étape 4 : Télécharger et restaurer les dépendances
+
+      # Étape 6 : Compiler et installer les dépendances sans exécuter les tests
       - name: Build with Maven
-        run: mvn clean install -DskipTests  # Utilise Maven pour installer les dépendances
+        run: mvn clean install -DskipTests
 
-      # Étape 5 : Exécution des tests
+      # Étape 7 : Lancer les tests
       - name: Run tests
-        run: mvn test  # Lance les tests unitaires avec Maven
+        run: mvn test
 
-      # Étape 6 : Créer le build de l'application (fichier JAR)
+      # Étape 8 : Générer le fichier JAR
       - name: Build Spring Boot project
-        run: mvn package -DskipTests  # Crée le JAR sans exécuter les tests (si tu veux déjà les avoir passés à l'étape précédente)
-      # Étape de vérification des fichiers dans le répertoire target
+        run: mvn package -DskipTests
+
+      # Étape 9 : Vérifier les fichiers dans le dossier target
       - name: List files in target directory
         run: ls -al target/
-      # Optionnel : Publier un fichier JAR ou autre artefact
+
+      # Étape 10 : Publier le JAR en tant qu'artefact
       - name: Upload JAR file as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: spring-boot-jar
-          path: target/*.jar  # Récupère le fichier JAR généré dans le dossier target
+          path: target/*.jar
 
-      # Étape 7 : Simuler le déploiement
+      # Étape 11 : Simuler le déploiement
       - name: Simulated deploy
         run: |
-          chmod +x deploy.sh  # Rendre le script exécutable
-          ./deploy.sh  # Exécuter le script de déploiement
+          chmod +x deploy.sh
+          ./deploy.sh
